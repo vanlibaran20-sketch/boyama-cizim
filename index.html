@@ -2,94 +2,198 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Çocuklar İçin Boyama Oyunu</title>
+<title>Boyama ve Çizim</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 body {
   margin: 0;
   font-family: Arial, sans-serif;
   background: #f2f2f2;
-  text-align: center;
 }
-h1 {
-  background: #ff9800;
-  color: white;
-  margin: 0;
-  padding: 12px;
-}
-#tools {
+
+#toolbar {
+  background: #fff;
+  padding: 6px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 10px;
-  padding: 10px;
-  background: #fff;
+  gap: 6px;
+  border-bottom: 1px solid #ccc;
 }
-button {
-  padding: 10px;
+
+#toolbar button {
+  padding: 8px 10px;
   border: none;
-  border-radius: 8px;
-  font-size: 18px;
+  border-radius: 6px;
+  background: #e0e0e0;
+  font-size: 14px;
   cursor: pointer;
 }
+
+#canvasWrap {
+  position: relative;
+}
+
 canvas {
-  background: white;
-  border: 2px solid #ccc;
-  margin-top: 10px;
-  touch-action: none;
+  position: absolute;
+  top: 0;
+  left: 0;
 }
 </style>
 </head>
+
 <body>
 
-<h1>🎨 Boyama & Çizim</h1>
-
-<div id="tools">
-  <button onclick="setColor('black')">⚫</button>
-  <button onclick="setColor('red')">🔴</button>
-  <button onclick="setColor('blue')">🔵</button>
-  <button onclick="setColor('green')">🟢</button>
-  <button onclick="setColor('yellow')">🟡</button>
-  <button onclick="erase()">🧽</button>
-  <button onclick="clearCanvas()">🗑️</button>
+<div id="toolbar">
+  <button onclick="setSkeleton('bos')">Boş</button>
+  <button onclick="setSkeleton('daire')">Daire</button>
+  <button onclick="setSkeleton('kare')">Kare</button>
+  <button onclick="setSkeleton('ucgen')">Üçgen</button>
+  <button onclick="setSkeleton('yildiz')">Yıldız</button>
+  <button onclick="setSkeleton('1')">1</button>
+  <button onclick="setSkeleton('2')">2</button>
+  <button onclick="setSkeleton('3')">3</button>
+  <button onclick="setSkeleton('A')">A</button>
+  <button onclick="setSkeleton('B')">B</button>
+  <button onclick="setSkeleton('gunes')">Güneş</button>
+  <button onclick="clearDraw()">Temizle</button>
 </div>
 
-<canvas id="canvas" width="360" height="480"></canvas>
+<div id="canvasWrap">
+  <canvas id="bg"></canvas>
+  <canvas id="draw"></canvas>
+</div>
 
 <script>
-const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d");
+const bg = document.getElementById("bg");
+const draw = document.getElementById("draw");
+const bgc = bg.getContext("2d");
+const dc = draw.getContext("2d");
 
-let drawing = false;
-let color = "black";
+function resize() {
+  bg.width = draw.width = window.innerWidth;
+  bg.height = draw.height = window.innerHeight - 60;
+}
+resize();
+window.onresize = resize;
 
-function setColor(c) {
-  color = c;
+function clearDraw() {
+  dc.clearRect(0,0,draw.width,draw.height);
 }
 
-function erase() {
-  color = "white";
+function clearBg() {
+  bgc.clearRect(0,0,bg.width,bg.height);
 }
 
-function clearCanvas() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
+function setSkeleton(type) {
+  clearDraw();
+  clearBg();
+  bgc.strokeStyle = "#bbb";
+  bgc.lineWidth = 6;
+  bgc.lineCap = "round";
+  bgc.font = "300px Arial";
+  bgc.textAlign = "center";
+  bgc.textBaseline = "middle";
+
+  const cx = bg.width/2;
+  const cy = bg.height/2;
+
+  switch(type) {
+    case "daire":
+      bgc.beginPath();
+      bgc.arc(cx, cy, 200, 0, Math.PI*2);
+      bgc.stroke();
+      break;
+    case "kare":
+      bgc.strokeRect(cx-200, cy-200, 400, 400);
+      break;
+    case "ucgen":
+      bgc.beginPath();
+      bgc.moveTo(cx, cy-220);
+      bgc.lineTo(cx-220, cy+200);
+      bgc.lineTo(cx+220, cy+200);
+      bgc.closePath();
+      bgc.stroke();
+      break;
+    case "yildiz":
+      drawStar(cx, cy, 5, 200, 80);
+      break;
+    case "1":
+    case "2":
+    case "3":
+    case "A":
+    case "B":
+      bgc.strokeText(type, cx, cy);
+      break;
+    case "gunes":
+      bgc.beginPath();
+      bgc.arc(cx, cy, 140, 0, Math.PI*2);
+      bgc.stroke();
+      for(let i=0;i<12;i++){
+        bgc.beginPath();
+        bgc.moveTo(cx, cy);
+        bgc.lineTo(
+          cx + Math.cos(i*30*Math.PI/180)*240,
+          cy + Math.sin(i*30*Math.PI/180)*240
+        );
+        bgc.stroke();
+      }
+      break;
+    default:
+      break;
+  }
 }
 
-canvas.addEventListener("pointerdown", () => drawing = true);
-canvas.addEventListener("pointerup", () => drawing = false);
-canvas.addEventListener("pointerleave", () => drawing = false);
-canvas.addEventListener("pointermove", draw);
-
-function draw(e) {
-  if (!drawing) return;
-  const rect = canvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  ctx.fillStyle = color;
-  ctx.beginPath();
-  ctx.arc(x, y, 6, 0, Math.PI * 2);
-  ctx.fill();
+function drawStar(cx, cy, spikes, outer, inner) {
+  let rot = Math.PI / 2 * 3;
+  let x = cx;
+  let y = cy;
+  let step = Math.PI / spikes;
+  bgc.beginPath();
+  bgc.moveTo(cx, cy - outer);
+  for (let i = 0; i < spikes; i++) {
+    x = cx + Math.cos(rot) * outer;
+    y = cy + Math.sin(rot) * outer;
+    bgc.lineTo(x, y);
+    rot += step;
+    x = cx + Math.cos(rot) * inner;
+    y = cy + Math.sin(rot) * inner;
+    bgc.lineTo(x, y);
+    rot += step;
+  }
+  bgc.closePath();
+  bgc.stroke();
 }
+
+// ÇİZİM
+let drawing=false;
+draw.onmousedown = e => {drawing=true; dc.beginPath(); dc.moveTo(e.clientX,e.clientY-60);}
+draw.onmousemove = e => {
+  if(!drawing) return;
+  dc.lineTo(e.clientX,e.clientY-60);
+  dc.strokeStyle="#000";
+  dc.lineWidth=4;
+  dc.lineCap="round";
+  dc.stroke();
+};
+draw.onmouseup = ()=>drawing=false;
+
+draw.ontouchstart = e => {
+  drawing=true;
+  const t=e.touches[0];
+  dc.beginPath();
+  dc.moveTo(t.clientX,t.clientY-60);
+};
+draw.ontouchmove = e => {
+  if(!drawing) return;
+  const t=e.touches[0];
+  dc.lineTo(t.clientX,t.clientY-60);
+  dc.strokeStyle="#000";
+  dc.lineWidth=4;
+  dc.stroke();
+};
+draw.ontouchend = ()=>drawing=false;
 </script>
 
 </body>
