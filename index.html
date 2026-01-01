@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<title>Çocuklar İçin Boyama Oyunu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #f2f2f2;
+  text-align: center;
+}
+h1 {
+  background: #ff9800;
+  color: white;
+  margin: 0;
+  padding: 12px;
+}
+#tools {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px;
+  background: #fff;
+}
+button {
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+}
+canvas {
+  background: white;
+  border: 2px solid #ccc;
+  margin-top: 10px;
+  touch-action: none;
+}
+</style>
+</head>
+<body>
+
+<h1>🎨 Boyama & Çizim</h1>
+
+<div id="tools">
+  <button onclick="setColor('black')">⚫</button>
+  <button onclick="setColor('red')">🔴</button>
+  <button onclick="setColor('blue')">🔵</button>
+  <button onclick="setColor('green')">🟢</button>
+  <button onclick="setColor('yellow')">🟡</button>
+  <button onclick="erase()">🧽</button>
+  <button onclick="clearCanvas()">🗑️</button>
+</div>
+
+<canvas id="canvas" width="360" height="480"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+let drawing = false;
+let color = "black";
+
+function setColor(c) {
+  color = c;
+}
+
+function erase() {
+  color = "white";
+}
+
+function clearCanvas() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+canvas.addEventListener("pointerdown", () => drawing = true);
+canvas.addEventListener("pointerup", () => drawing = false);
+canvas.addEventListener("pointerleave", () => drawing = false);
+canvas.addEventListener("pointermove", draw);
+
+function draw(e) {
+  if (!drawing) return;
+  const rect = canvas.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.arc(x, y, 6, 0, Math.PI * 2);
+  ctx.fill();
+}
+</script>
+
+</body>
+</html>
