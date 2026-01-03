@@ -1,24 +1,17 @@
 {
-  "name": "Teknik Çizim",
-  "short_name": "Çizim",
-  "start_url": "/boyama-cizim/",
-  "scope": "/boyama-cizim/",
-  "display": "standalone",
   "background_color": "#ffffff",
+  "dir": "ltr",
+  "display": "standalone",
+  "name": "Boyama ve Çizim",
+  "orientation": "any",
+  "scope": "/",
+  "short_name": "Boyama",
+  "start_url": "/",
   "theme_color": "#ffffff",
-  "description": "Çocuklar için boyama ve çizim oyunu",
-  "icons": [
-    {
-      "src": "icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon-512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+  "id": "boyama-cizim",
+  "description": "çocuklar için eğlenceli ve öğretici boyama ve  çizim uygulaması",
+  "categories": [
+    "education",
+    "kids"
   ]
 }
